@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | HabitFlow</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <style>
+        /* Reusing CSS Variables from index.html for consistency */
+        :root {
+            --primary: #6366f1; --primary-light: #818cf8; --primary-dark: #4f46e5;
+            --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
+            --dark: #1f2937; --gray: #6b7280; --light: #f3f4f6; --white: #ffffff;
+            --bg-main: #f9fafb; --bg-card: #ffffff; --text-main: #1f2937;
+            --text-secondary: #6b7280; --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        body.dark-mode {
+            --primary: #818cf8; --primary-light: #a5b4fc; --primary-dark: #6366f1;
+            --success: #34d399; --warning: #fbbf24; --danger: #f87171;
+            --dark: #e5e7eb; --gray: #9ca3af; --light: #374151; --white: #1f2937;
+            --bg-main: #111827; --bg-card: #1f2937; --text-main: #f9fafb;
+            --text-secondary: #d1d5db; --border-color: #374151;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); display: flex; align-items: center; justify-content: center; min-height: 100vh; transition: background-color 0.3s ease, color 0.3s ease; }
+        .auth-container { background-color: var(--bg-card); padding: 2.5rem; border-radius: 12px; box-shadow: var(--shadow); width: 100%; max-width: 400px; border: 1px solid var(--border-color); text-align: center; }
+        .logo { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-bottom: 1.5rem; color: var(--primary); }
+        .logo h1 { font-size: 1.75rem; font-weight: 700; }
+        .auth-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.25rem; text-align: left; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; color: var(--text-main); }
+        .form-input { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; font-size: 0.95rem; background-color: var(--bg-main); color: var(--text-main); transition: all 0.3s ease; }
+        body.dark-mode .form-input { background-color: var(--light); }
+        .form-input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s ease; text-decoration: none; line-height: 1; width: 100%; font-size: 1rem; }
+        .btn-primary { background-color: var(--primary); color: var(--white); }
+        .btn-primary:hover { background-color: var(--primary-dark); }
+        .auth-link { margin-top: 1.5rem; font-size: 0.9rem; color: var(--text-secondary); }
+        .auth-link a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .auth-link a:hover { text-decoration: underline; }
+        /* Basic dark mode toggle - simplified for auth pages */
+        .theme-toggle-container { position: absolute; top: 1rem; right: 1rem; }
+        .theme-toggle { background: none; border: 1px solid var(--border-color); border-radius: 50%; cursor: pointer; padding: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--text-secondary); transition: all 0.2s ease; }
+        .theme-toggle:hover { background-color: var(--light); color: var(--text-main); }
+    </style>
+</head>
+<body>
+
+
+    <div class="theme-toggle-container">
+        <button class="theme-toggle" id="darkModeToggle" title="Toggle Theme">
+            <i data-feather="moon" size="18"></i> </button>
+    </div>
+
+    <div class="auth-container">
+        <div class="logo">
+            <i data-feather="activity" stroke-width="2.5" size="32"></i>
+            <h1>HabitFlow</h1>
+        </div>
+        <h2 class="auth-title">Create Your Account</h2>
+
+        <form id="registerForm" action="/register" method="POST">
+            <div class="form-group">
+                <label for="name" class="form-label">Full Name</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="John Smith"> </div>
+            <div class="form-group">
+                <label for="email" class="form-label">Email Address</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Create a password" required minlength="6">
+            </div>
+             <div class="form-group">
+                <label for="confirmPassword" class="form-label">Confirm Password</label>
+                <input type="password" id="confirmPassword" name="confirmPassword" class="form-input" placeholder="Confirm your password" required>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                 <i data-feather="user-plus" size="16"></i>
+                <span>Register</span>
+            </button>
+        </form>
+
+        <p class="auth-link">
+            Already have an account? <a href="login.html">Login here</a>
+        </p>
+    </div>
+
+    <script>
+        // Basic Dark Mode Toggle for Auth Pages (Same as login.html)
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const body = document.body;
+
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                body.classList.add('dark-mode');
+                darkModeToggle.innerHTML = feather.icons.sun.toSvg({ width: 18, height: 18 });
+            } else {
+                body.classList.remove('dark-mode');
+                darkModeToggle.innerHTML = feather.icons.moon.toSvg({ width: 18, height: 18 });
+            }
+        }
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const currentTheme = savedTheme || (prefersDark ? 'dark' : 'light');
+        applyTheme(currentTheme);
+
+        darkModeToggle.addEventListener('click', () => {
+            const newTheme = body.classList.contains('dark-mode') ? 'light' : 'dark';
+            localStorage.setItem('theme', newTheme);
+            applyTheme(newTheme);
+        });
+
+        // Initialize Feather Icons
+        feather.replace();
+
+        // Handle Form Submission (Placeholder)
+        const registerForm = document.getElementById('registerForm');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+    
+    </script>
+</body>
+</html>

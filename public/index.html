@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HabitFlow | Track Your Progress</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/feather-icons/4.29.0/feather.min.js"></script>
+    <style>
+        :root {
+            /* Light Mode Variables */
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light: #f3f4f6;
+            --white: #ffffff;
+            --bg-main: #f9fafb;
+            --bg-card: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb; /* Adjusted for better visibility */
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --dark-card: #1f2937;
+            --dark-border: #374151;
+            --dark-hover: #374151;
+            --dark-text: #f9fafb;
+        }
+
+        /* Dark Mode Variables */
+        body.dark-mode {
+            --primary: #818cf8;
+            --primary-light: #a5b4fc;
+            --primary-dark: #6366f1;
+            --success: #34d399;
+            --warning: #fbbf24;
+            --danger: #f87171;
+            --dark: #e5e7eb;
+            --gray: #9ca3af;
+            --light: #374151;
+            --white: #1f2937;
+            --bg-main: #111827;
+            --bg-card: #1f2937;
+            --text-main: #f9fafb;
+            --text-secondary: #d1d5db;
+            --border-color: #374151;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 240px;
+            background-color: var(--bg-card);
+            border-right: 1px solid var(--border-color); /* Added border */
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .menu-item:hover {
+            background-color: var(--light);
+            color: var(--text-main); /* Improved hover color */
+        }
+
+        .menu-item.active {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+        .menu-item.active:hover {
+            background-color: var(--primary-dark); /* Darker hover for active */
+        }
+
+        .profile {
+            margin-top: auto;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding-top: 1.5rem; /* Added padding top */
+            border-top: 1px solid var(--border-color);
+        }
+
+        .profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-dark); /* Adjusted color */
+            font-weight: 600;
+        }
+
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .profile-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+
+        .profile-email {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .main {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex; /* Use inline-flex */
+            align-items: center;
+            justify-content: center; /* Center content */
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            text-decoration: none; /* Remove underline if used as link */
+            line-height: 1; /* Ensure consistent height */
+        }
+
+        .btn i {
+             margin-top: -1px; /* Fine-tune icon alignment */
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid var(--gray);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--light);
+            border-color: var(--text-secondary); /* Slightly darken border on hover */
+            color: var(--text-main);
+        }
+
+        .theme-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+        }
+
+        .theme-toggle:hover {
+            background-color: var(--light);
+            color: var(--text-main);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Adjusted minmax */
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color); /* Subtle border */
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            /* Removed justify-content: space-between; Align icon left */
+            gap: 0.75rem; /* Add gap */
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 500; /* Slightly bolder */
+        }
+
+        .stat-icon {
+            width: 36px; /* Slightly smaller */
+            height: 36px;
+            border-radius: 8px; /* Rounded square */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .stat-icon i {
+            width: 18px; /* Adjust icon size */
+            height: 18px;
+        }
+
+        .stat-icon.green { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .stat-icon.purple { background-color: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .stat-icon.orange { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .stat-icon.red { background-color: rgba(239, 68, 68, 0.1); color: var(--danger); }
+
+        .stat-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 0.25rem; /* Add margin bottom */
+        }
+
+        .stat-subtext {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .chart-card {
+            background-color: var(--bg-card);
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .chart-period {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            background-color: var(--light);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        .chart-period:hover {
+             background-color: var(--border-color);
+        }
+
+        .chart-body {
+            height: 300px;
+            position: relative;
+        }
+
+        .habits-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem; /* Increased margin */
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .habits-filter {
+            display: flex;
+            gap: 0.5rem;
+            background-color: var(--light); /* Background for the group */
+            padding: 4px; /* Padding around buttons */
+            border-radius: 8px; /* Rounded corners for the group */
+        }
+
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            background-color: transparent; /* Transparent by default */
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn:hover {
+             color: var(--text-main); /* Darker text on hover */
+        }
+
+        .filter-btn.active {
+            background-color: var(--bg-card); /* Use card background */
+            color: var(--primary);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow */
+        }
+
+        body.dark-mode .filter-btn.active {
+             color: var(--primary-light); /* Adjust active color for dark mode */
+        }
+
+        .habits-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* Adjusted minmax */
+            gap: 1.5rem;
+        }
+
+        .habit-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column; /* Ensure footer stays at bottom */
+            transition: all 0.3s ease;
+        }
+        .habit-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px -2px rgba(0,0,0,0.1), 0 3px 7px -3px rgba(0,0,0,0.08);
+        }
+        body.dark-mode .habit-card:hover {
+             box-shadow: 0 6px 12px -2px rgba(0,0,0,0.3), 0 3px 7px -3px rgba(0,0,0,0.25);
+        }
+
+
+        .habit-content { /* New wrapper for content */
+            padding: 1.25rem;
+            flex-grow: 1; /* Allow content to grow */
+        }
+
+        .habit-header { /* Header within content */
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start; /* Align items top */
+            margin-bottom: 0.75rem;
+        }
+
+        .habit-category {
+            font-size: 0.75rem; /* Smaller category */
+            font-weight: 600; /* Bolder category */
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            display: inline-block;
+            /* margin-bottom: 0.75rem; */ /* Removed margin */
+            line-height: 1.2; /* Adjust line height */
+        }
+
+        /* Category colors */
+        .health { background-color: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .productivity { background-color: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .education { background-color: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        /* Add more category styles if needed */
+
+        .habit-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-main);
+        }
+
+        .habit-description {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.4; /* Improved readability */
+        }
+
+        .habit-progress {
+            margin-bottom: 1rem; /* Space before footer actions */
+        }
+
+        .progress-text {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem; /* Slightly smaller text */
+            color: var(--text-secondary); /* Dimmer text */
+            margin-bottom: 0.3rem; /* Closer to bar */
+        }
+
+        .progress-percent {
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background-color: var(--light);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 3px;
+            transition: width 0.3s ease; /* Add transition */
+        }
+
+        .progress-fill.green { background-color: var(--success); }
+        .progress-fill.purple { background-color: var(--primary); }
+        .progress-fill.orange { background-color: var(--warning); }
+         /* Add more colors if needed */
+
+        .habit-actions { /* Container for the buttons */
+            display: flex;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .habit-action { /* Style for action buttons */
+            flex: 1;
+            padding: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            font-size: 0.85rem; /* Slightly smaller font */
+            font-weight: 500; /* Medium weight */
+            color: var(--text-secondary);
+            background: none; /* Ensure button style */
+            border: none; /* Ensure button style */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            line-height: 1; /* Ensure consistent height */
+        }
+        .habit-action i {
+             width: 16px;
+             height: 16px;
+             margin-top: -1px; /* Align icon better */
+        }
+
+        .habit-action:hover {
+            background-color: var(--light);
+            color: var(--text-main);
+        }
+
+        .habit-action:not(:last-child) {
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* Style for completed card */
+        .habit-card.completed .habit-action:first-child {
+             color: var(--success);
+             cursor: default; /* Indicate non-clickable */
+        }
+         .habit-card.completed .habit-action:first-child:hover {
+             background-color: transparent; /* No hover effect */
+        }
+
+
+        .streak-calendar {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem; /* Consistency */
+        }
+
+        .calendar-day {
+            width: 18px; /* Smaller days */
+            height: 18px;
+            border-radius: 4px;
+            background-color: var(--light);
+            transition: background-color 0.3s ease;
+        }
+
+        .calendar-day.completed {
+            background-color: var(--success);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6); /* Darker overlay */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            width: 500px;
+            max-width: 90%;
+            border-radius: 12px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transform: scale(0.95); /* Start slightly smaller */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1); /* Smoother transition */
+        }
+         .modal.active .modal-content {
+             transform: scale(1); /* Scale to full size */
+         }
+
+        .modal-header {
+            padding: 1.25rem 1.5rem; /* Adjusted padding */
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-title {
+            font-size: 1.1rem; /* Slightly smaller */
+            font-weight: 600;
+            color: var(--text-main);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            padding: 0.25rem; /* Add padding for easier click */
+            border-radius: 50%;
+            display: flex; /* Ensure icon centers */
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s ease;
+        }
+        .modal-close:hover {
+             background-color: var(--light);
+             color: var(--text-main);
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+            max-height: 60vh; /* Limit height and allow scroll */
+            overflow-y: auto; /* Enable scrolling */
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            font-size: 0.9rem; /* Smaller label */
+            color: var(--text-main);
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem; /* Slightly smaller input font */
+            background-color: var(--bg-main); /* Use main bg for inputs */
+            color: var(--text-main);
+            transition: all 0.3s ease;
+        }
+        body.dark-mode .form-input, body.dark-mode .form-select {
+            background-color: var(--light); /* Darker input bg in dark mode */
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2); /* Adjusted shadow */
+        }
+
+        .form-select {
+             appearance: none; /* Custom dropdown arrow */
+             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+             background-position: right 0.75rem center;
+             background-repeat: no-repeat;
+             background-size: 1.2em 1.2em;
+             padding-right: 2.5rem; /* Space for arrow */
+        }
+        body.dark-mode .form-select {
+             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+        }
+
+
+        .form-select option {
+            background-color: var(--bg-card);
+            color: var(--text-main);
+        }
+         body.dark-mode .form-select option {
+              background-color: var(--dark-card);
+              color: var(--dark-text);
+         }
+
+        .modal-footer {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            background-color: var(--bg-main); /* Footer background */
+        }
+         body.dark-mode .modal-footer {
+             background-color: var(--bg-card); /* Match card bg in dark mode */
+         }
+
+
+        /* Habit Options Menu Styles */
+        .habit-options-menu {
+            position: absolute;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+            min-width: 180px;
+            overflow: hidden; /* Ensure border radius applies */
+            padding: 0.5rem 0; /* Padding top/bottom */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+        body.dark-mode .habit-options-menu {
+             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.75rem 1rem; /* Adjusted padding */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            font-size: 0.9rem;
+            color: var(--text-main);
+        }
+        .option-item i {
+             width: 16px;
+             height: 16px;
+             color: var(--text-secondary); /* Icon color */
+        }
+
+        .option-item:hover {
+            background-color: var(--light);
+        }
+        body.dark-mode .option-item:hover {
+             background-color: var(--dark-hover);
+        }
+
+        .option-item.danger {
+            color: var(--danger);
+        }
+         .option-item.danger i {
+             color: var(--danger);
+         }
+        .option-item.danger:hover {
+            background-color: rgba(239, 68, 68, 0.1); /* Danger hover bg */
+        }
+
+        /* Notification Styles */
+        .notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background-color: var(--dark);
+            color: var(--bg-main);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            z-index: 1100;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+         body.dark-mode .notification {
+             background-color: var(--light);
+             color: var(--dark);
+         }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .notification.hide {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+
+        .notification-icon {
+            color: var(--success);
+        }
+         body.dark-mode .notification-icon {
+              color: var(--success); /* Keep success color consistent */
+         }
+
+        .notification-content p {
+            margin: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .notification-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            padding: 0.25rem;
+            margin-left: 1rem; /* Push close button away */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background-color 0.2s ease;
+        }
+        .notification-close:hover {
+             background-color: rgba(255, 255, 255, 0.1);
+        }
+         body.dark-mode .notification-close {
+             color: var(--text-secondary);
+         }
+          body.dark-mode .notification-close:hover {
+             background-color: rgba(0, 0, 0, 0.1);
+         }
+
+
+        /* Responsive Adjustments */
+        @media (max-width: 1024px) {
+             .chart-container {
+                 grid-template-columns: 1fr; /* Stack charts */
+             }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                padding: 1rem;
+                flex-direction: row; /* Make sidebar horizontal */
+                align-items: center;
+                overflow-x: auto; /* Allow horizontal scrolling if needed */
+            }
+            .logo { margin-bottom: 0; margin-right: 1rem; }
+            .menu { flex-direction: row; gap: 0.25rem; flex-grow: 1; }
+            .menu-item { padding: 0.5rem 0.75rem; }
+            .menu-item span { display: none; } /* Hide text labels on small screens */
+            .profile { margin-top: 0; padding-top: 0; border-top: none; margin-left: auto; padding-left: 1rem; border-left: 1px solid var(--border-color);}
+            .profile-email { display: none; } /* Hide email on small screens */
+
+            .main { padding: 1.5rem; }
+            .header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .action-buttons { width: 100%; justify-content: flex-end; }
+            .stats { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
+            .stat-card { padding: 1rem; }
+            .stat-value { font-size: 1.5rem; }
+            .habits-grid { grid-template-columns: 1fr; gap: 1rem; } /* Single column */
+            .section-header { flex-direction: column; align-items: flex-start; gap: 1rem; }
+            .habits-filter { width: 100%; overflow-x: auto; justify-content: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+             .stats { grid-template-columns: 1fr; } /* Single column stats */
+             .btn { padding: 0.5rem 1rem; font-size: 0.9rem; }
+             .btn span { display: none; } /* Hide button text */
+             .btn i { margin-right: 0; } /* Remove gap */
+             #newHabitBtn span { display: inline; } /* Keep text for New Habit */
+
+             .main { padding: 1rem; }
+             .modal-content { width: 95%; }
+        }
+
+
+        /* Animation */
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: var(--shadow); }
+            50% { transform: scale(1.02); box-shadow: 0 8px 16px -3px rgba(99, 102, 241, 0.3); }
+            100% { transform: scale(1); box-shadow: var(--shadow); }
+        }
+
+
+        /* Hide sections initially */
+        .content-section {
+            display: none;
+        }
+        #dashboard-section { /* Show dashboard by default */
+             display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <i data-feather="activity" stroke-width="2.5"></i>
+                <h1>HabitFlow</h1>
+            </div>
+
+            <nav class="menu">
+                <a href="#" class="menu-item active" data-section="dashboard">
+                    <i data-feather="grid"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="menu-item" data-section="my-habits">
+                    <i data-feather="list"></i>
+                    <span>My Habits</span>
+                </a>
+                <a href="#" class="menu-item" data-section="calendar">
+                    <i data-feather="calendar"></i>
+                    <span>Calendar</span>
+                </a>
+                <a href="#" class="menu-item" data-section="analytics">
+                    <i data-feather="bar-chart-2"></i>
+                    <span>Analytics</span>
+                </a>
+                <a href="#" class="menu-item" data-section="achievements">
+                    <i data-feather="award"></i>
+                    <span>Achievements</span>
+                </a>
+                <a href="#" class="menu-item" data-section="settings">
+                    <i data-feather="settings"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+
+            <div class="profile">
+                <div class="profile-pic">AM</div>
+                <div class="profile-info">
+                    <div class="profile-name">Adithyan</div>
+                    <div class="profile-email">adithyan@gmail.com</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main">
+            <div class="content-sections">
+
+                <div class="content-section" id="dashboard-section">
+                    <div class="header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="action-buttons">
+                            <button class="theme-toggle" id="darkModeToggle" title="Toggle Theme">
+                                </button>
+                            <button class="btn btn-outline" id="filterBtn">
+                                <i data-feather="filter" size="16"></i>
+                                <span>Filter</span>
+                            </button>
+                            <button class="btn btn-primary" id="newHabitBtn">
+                                <i data-feather="plus" size="16"></i>
+                                <span>New Habit</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats">
+                        <div class="stat-card">
+                             <div class="stat-header">
+                                <div class="stat-icon green"><i data-feather="check-circle"></i></div>
+                                <div class="stat-title">Completion Rate</div>
+                            </div>
+                            <div class="stat-value">87%</div>
+                            <div class="stat-subtext">+4.6% from last week</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon purple"><i data-feather="trending-up"></i></div>
+                                <div class="stat-title">Current Streak</div>
+                            </div>
+                            <div class="stat-value">12 days</div>
+                            <div class="stat-subtext">Keep it up!</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon orange"><i data-feather="award"></i></div>
+                                <div class="stat-title">Best Streak</div>
+                            </div>
+                            <div class="stat-value">21 days</div>
+                            <div class="stat-subtext">Achieved on Apr 18</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon red"><i data-feather="activity"></i></div>
+                                <div class="stat-title">Active Habits</div>
+                            </div>
+                            <div class="stat-value">4</div>
+                            <div class="stat-subtext">4 due today</div>
+                        </div>
+                    </div>
+
+                    <div class="chart-container">
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h2 class="chart-title">Habit Performance</h2>
+                                <div class="chart-period">
+                                    <i data-feather="calendar" size="14"></i>
+                                    Last 30 Days
+                                </div>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="performanceChart"></canvas>
+                            </div>
+                        </div>
+
+                        <div class="chart-card">
+                            <div class="chart-header">
+                                <h2 class="chart-title">Habits by Category</h2>
+                            </div>
+                            <div class="chart-body">
+                                <canvas id="categoryChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="habits-section">
+                        <div class="section-header">
+                            <h2 class="section-title">Today's Habits</h2>
+                            <div class="habits-filter">
+                                <button class="filter-btn active" data-filter="All">All</button>
+                                <button class="filter-btn" data-filter="Health">Health</button>
+                                <button class="filter-btn" data-filter="Productivity">Productivity</button>
+                                <button class="filter-btn" data-filter="Education">Education</button>
+                            </div>
+                        </div>
+
+                        <div class="habits-grid">
+                            <div class="habit-card" data-category="Health">
+                                <div class="habit-content">
+                                    <div class="habit-header">
+                                        <span class="habit-category health">Health</span>
+                                        </div>
+                                    <h3 class="habit-title">Morning Workout</h3>
+                                    <p class="habit-description">30 minutes of exercise every morning.</p>
+                                    <div class="streak-calendar">
+                                        </div>
+                                    <div class="habit-progress">
+                                        <div class="progress-text">
+                                            <span>Progress</span>
+                                            <span class="progress-percent">71%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill green" style="width: 71%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="habit-actions">
+                                    <button class="habit-action complete-btn">
+                                        <i data-feather="check" size="16"></i>
+                                        <span>Complete</span>
+                                    </button>
+                                    <button class="habit-action stats-btn">
+                                        <i data-feather="bar-chart-2" size="16"></i>
+                                        <span>Stats</span>
+                                    </button>
+                                    <button class="habit-action more-btn">
+                                        <i data-feather="more-vertical" size="16"></i>
+                                        <span>More</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="habit-card" data-category="Productivity">
+                                <div class="habit-content">
+                                     <div class="habit-header">
+                                        <span class="habit-category productivity">Productivity</span>
+                                    </div>
+                                    <h3 class="habit-title">Read for 30 minutes</h3>
+                                    <p class="habit-description">Daily reading habit to improve knowledge.</p>
+                                     <div class="streak-calendar"></div>
+                                    <div class="habit-progress">
+                                        <div class="progress-text">
+                                            <span>Progress</span>
+                                            <span class="progress-percent">100%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill purple" style="width: 100%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="habit-actions">
+                                     <button class="habit-action complete-btn">
+                                        <i data-feather="check-circle" size="16"></i> <span>Complete</span>
+                                    </button>
+                                    <button class="habit-action stats-btn">
+                                        <i data-feather="bar-chart-2" size="16"></i>
+                                        <span>Stats</span>
+                                    </button>
+                                    <button class="habit-action more-btn">
+                                        <i data-feather="more-vertical" size="16"></i>
+                                        <span>More</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="habit-card" data-category="Education">
+                                <div class="habit-content">
+                                    <div class="habit-header">
+                                        <span class="habit-category education">Education</span>
+                                    </div>
+                                    <h3 class="habit-title">Code Practice</h3>
+                                    <p class="habit-description">Solve one coding problem daily.</p>
+                                    <div class="streak-calendar"></div>
+                                    <div class="habit-progress">
+                                        <div class="progress-text">
+                                            <span>Progress</span>
+                                            <span class="progress-percent">57%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill orange" style="width: 57%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="habit-actions">
+                                     <button class="habit-action complete-btn">
+                                        <i data-feather="check" size="16"></i>
+                                        <span>Complete</span>
+                                    </button>
+                                    <button class="habit-action stats-btn">
+                                        <i data-feather="bar-chart-2" size="16"></i>
+                                        <span>Stats</span>
+                                    </button>
+                                    <button class="habit-action more-btn">
+                                        <i data-feather="more-vertical" size="16"></i>
+                                        <span>More</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="habit-card" data-category="Health">
+                                <div class="habit-content">
+                                     <div class="habit-header">
+                                        <span class="habit-category health">Health</span>
+                                    </div>
+                                    <h3 class="habit-title">Drink 8 Glasses of Water</h3>
+                                    <p class="habit-description">Stay hydrated throughout the day.</p>
+                                    <div class="streak-calendar"></div>
+                                    <div class="habit-progress">
+                                        <div class="progress-text">
+                                            <span>Progress</span>
+                                            <span class="progress-percent">85%</span>
+                                        </div>
+                                        <div class="progress-bar">
+                                            <div class="progress-fill green" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="habit-actions">
+                                     <button class="habit-action complete-btn">
+                                        <i data-feather="check" size="16"></i>
+                                        <span>Complete</span>
+                                    </button>
+                                    <button class="habit-action stats-btn">
+                                        <i data-feather="bar-chart-2" size="16"></i>
+                                        <span>Stats</span>
+                                    </button>
+                                    <button class="habit-action more-btn">
+                                        <i data-feather="more-vertical" size="16"></i>
+                                        <span>More</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div></div></div> </div> <div class="modal" id="habitModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Create New Habit</h3>
+                <button class="modal-close">
+                    <i data-feather="x"></i>
+                </button>
+            </div>
+            <form id="newHabitForm"> <div class="modal-body">
+                    <div class="form-group">
+                        <label class="form-label" for="habitName">Habit Name</label>
+                        <input type="text" id="habitName" class="form-input" placeholder="e.g., Morning Meditation" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="habitDescription">Description</label>
+                        <input type="text" id="habitDescription" class="form-input" placeholder="Brief description (optional)">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="habitCategory">Category</label>
+                        <select id="habitCategory" class="form-select">
+                            <option value="Health">Health & Fitness</option>
+                            <option value="Productivity">Productivity</option>
+                            <option value="Education">Education</option>
+                            <option value="Personal">Personal Development</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="habitFrequency">Frequency</label>
+                        <select id="habitFrequency" class="form-select">
+                            <option>Daily</option>
+                            <option>Weekdays</option>
+                            <option>Weekends</option>
+                            <option>Weekly</option>
+                            <option>Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="habitReminder">Reminder Time</label>
+                        <input type="time" id="habitReminder" class="form-input">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline cancel-modal-btn">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Habit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="habitflow.js"></script>
+</body>
+</html>
